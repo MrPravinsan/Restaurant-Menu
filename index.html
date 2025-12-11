@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Food Court - Wanawasala | Smart Menu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- THEME CONFIGURATION --- */
+        :root {
+            --primary: #FF4B2B;
+            --primary-grad: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+            --dark: #121212;
+            --text-main: #2D3436;
+            --bg: #FDFBF7;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-dark: rgba(20, 20, 20, 0.9);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.06);
+            --radius: 20px;
+            --error: #ff3333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text-main); 
+            padding-bottom: 120px; 
+            scroll-behavior: smooth;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1000&q=80') center/cover no-repeat fixed;
+            height: 340px;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .logo-box {
+            width: 80px; height: 80px;
+            background: var(--white);
+            border-radius: 50%;
+            margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+        .logo-box svg { width: 45px; fill: var(--primary); }
+
+        h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; text-shadow: 0 4px 10px rgba(0,0,0,0.3); margin-bottom: 5px; }
+        
+        .location-tag {
+            font-size: 0.9rem; background: rgba(0,0,0,0.6); padding: 5px 15px;
+            border-radius: 20px; backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 15px; display: inline-flex; align-items: center; gap: 5px;
+        }
+
+        .status-badge {
+            background: #2ecc71; color: white; padding: 6px 16px; 
+            border-radius: 30px; font-size: 0.85rem; font-weight: 700;
+        }
+
+        /* --- CONTROLS --- */
+        .controls {
+            position: sticky; top: 10px; z-index: 100;
+            margin: -30px 15px 20px;
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 15px;
+            border-radius: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+
+        .search-box {
+            width: 100%; padding: 16px 20px 16px 45px;
+            border: none; border-radius: 18px;
+            background: #F0F2F5 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 18px center;
+            font-size: 1rem; color: var(--text-main); font-family: inherit;
+        }
+        .search-box:focus { background-color: #fff; box-shadow: 0 0 0 3px rgba(255, 75, 43, 0.2); outline: none; }
+
+        .categories { 
+            display: flex; gap: 10px; overflow-x: auto; padding: 15px 0 5px 0; 
+            scrollbar-width: none;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+
+        .cat-btn {
+            background: transparent; border: 1px solid rgba(0,0,0,0.1); 
+            padding: 10px 20px; border-radius: 50px; 
+            font-weight: 600; color: #636E72; white-space: nowrap; transition: 0.3s;
+        }
+        .cat-btn.active { 
+            background: var(--primary-grad); color: var(--white); border-color: transparent; 
+            box-shadow: 0 5px 15px rgba(255, 75, 43, 0.3);
+        }
+
+        /* --- MENU --- */
+        .menu-grid { 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; padding: 0 20px; 
+        }
+
+        .item-card {
+            background: var(--white); border-radius: var(--radius); overflow: hidden;
+            box-shadow: var(--shadow-card); 
+            display: flex; flex-direction: column; position: relative;
+            animation: fadeInUp 0.5s ease forwards;
+        }
+        
+        .img-container { height: 150px; overflow: hidden; position: relative; }
+        .item-img { width: 100%; height: 100%; object-fit: cover; transition:0.5s;}
+        .item-card:hover .item-img { transform: scale(1.1); }
+        
+        .tag { 
+            position: absolute; top: 10px; left: 10px; 
+            background: rgba(255,255,255,0.9); color: var(--text-main); 
+            padding: 4px 10px; font-size: 0.7rem; font-weight: 800; border-radius: 8px;
+        }
+
+        .item-info { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        .item-name { font-weight: 800; font-size: 1.05rem; margin-bottom: 5px; color: var(--text-main); }
+        .item-desc { font-size: 0.8rem; color: #888; margin-bottom: 12px; flex-grow: 1; }
+        
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        .price { 
+            font-weight: 800; background: linear-gradient(90deg, #FF416C, #FF4B2B); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.1rem; 
+        }
+        
+        .add-btn {
+            background: var(--dark); color: var(--white); width: 36px; height: 36px;
+            border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* --- CART & MODAL --- */
+        .cart-bar {
+            position: fixed; bottom: 30px; left: 20px; right: 20px;
+            background: var(--glass-dark); backdrop-filter: blur(20px);
+            color: var(--white); padding: 16px 25px; border-radius: 20px; 
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 900; cursor: pointer;
+            transform: translateY(150%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cart-bar.visible { transform: translateY(0); }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); z-index: 2000; justify-content: center; align-items: flex-end;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 600px;
+            border-top-left-radius: 30px; border-top-right-radius: 30px;
+            padding: 30px; max-height: 92vh; overflow-y: auto;
+            animation: slideUp 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+
+        /* --- TABLE SELECTOR GRID --- */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .table-btn {
+            background: #F5F7FA; border: 2px solid #eee; padding: 12px 5px;
+            border-radius: 12px; text-align: center; font-weight: 700;
+            color: #555; cursor: pointer; transition: 0.2s;
+        }
+        .table-btn:hover { background: #eee; }
+        .table-btn.active-table {
+            background: var(--primary); color: white; border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+        }
+
+        .order-type-toggle { display: flex; background: #F5F7FA; padding: 6px; border-radius: 18px; margin-bottom: 20px; }
+        .toggle-opt {
+            flex: 1; padding: 12px; text-align: center; font-weight: 700; cursor: pointer; border-radius: 14px;
+            color: #888; transition: 0.3s;
+        }
+        .toggle-opt.selected { background: var(--white); color: var(--primary); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        .form-input {
+            width: 100%; padding: 16px; margin-bottom: 12px; 
+            border: 2px solid #F0F2F5; border-radius: 16px; 
+            font-family: inherit; font-size: 0.95rem; background: #F9FAFB; transition: 0.3s;
+        }
+        .form-input:focus { background: #fff; border-color: var(--primary); outline: none; }
+        .form-input.error { border-color: var(--error); background: #fff0f0; animation: shake 0.3s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 25px; }
+        .btn-action { 
+            border: none; padding: 18px; border-radius: 16px; 
+            font-weight: 800; font-size: 1rem; cursor: pointer; color: white;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-wa { background: #25D366; }
+        .btn-email { background: #4a90e2; }
+        
+        .hidden { display: none !important; }
+
+        @keyframes fadeInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <div id="mainPage">
+        <header>
+            <div class="logo-box">
+                <svg viewBox="0 0 512 512"><path d="M416 224h-19.5c-4.5-45-29.6-83.9-66-107.8l20.8-54c3-7.9-1.1-16.7-9-19.8-7.9-3-16.7 1.1-19.8 9l-22 57.1c-13-3.6-27-5.5-41.5-5.5s-28.5 1.9-41.5 5.5l-22-57.1c-3-7.9-11.8-12-19.8-9-7.9 3-12 11.8-9 19.8l20.8 54c-36.4 23.9-61.5 62.8-66 107.8H96c-17.7 0-32 14.3-32 32v16c0 17.7 14.3 32 32 32h320c17.7 0 32-14.3 32-32v-16c0-17.7-14.3-32-32-32zM96 368v16c0 53 43 96 96 96h128c53 0 96-43 96-96v-16H96z"/></svg>
+            </div>
+            <h1>Food Court</h1>
+            <div class="location-tag">
+                📍 Posamwatta Rd, Wanawasala, Kelaniya
+            </div>
+            <div class="status-badge">🟢 Open Now</div>
+        </header>
+
+        <div class="controls">
+            <input type="text" id="search" class="search-box" placeholder="Search Food...">
+            <div class="categories">
+                <button class="cat-btn active" onclick="filter('All')">All</button>
+                <button class="cat-btn" onclick="filter('Kottu')">Kottu</button>
+                <button class="cat-btn" onclick="filter('Rice')">Rice</button>
+                <button class="cat-btn" onclick="filter('Burgers')">Burgers</button>
+                <button class="cat-btn" onclick="filter('Drinks')">Drinks</button>
+            </div>
+        </div>
+
+        <div class="menu-grid" id="menu"></div>
+    </div>
+
+    <div class="cart-bar" id="floatCart" onclick="openCheckout()">
+        <div style="font-weight:700; display:flex; align-items:center;">
+            <div style="background:#333; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px; font-size:0.8rem;" id="cartCount">0</div>
+            Items
+            <span class="total-badge" id="cartTotal" style="background:var(--primary); padding:4px 10px; border-radius:10px; margin-left:10px;">LKR 0</span>
+        </div>
+        <div style="font-weight:700; font-size:0.9rem;">View &rarr;</div>
+    </div>
+
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h2 style="font-size:1.5rem; font-weight:800;">Checkout</h2>
+                <button onclick="closeCheckout()" style="background:none; border:none; font-size:2rem; color:#888; cursor:pointer;">&times;</button>
+            </div>
+
+            <div class="order-type-toggle">
+                <div class="toggle-opt selected" onclick="setType('delivery')" id="btnDel">🚚 Delivery</div>
+                <div class="toggle-opt" onclick="setType('dinein')" id="btnDine">🍽️ Dine-in (In Shop)</div>
+            </div>
+
+            <div id="orderList" style="background:#F9FAFB; padding:15px; border-radius:18px; margin-bottom:15px; max-height:150px; overflow-y:auto;"></div>
+            <div style="text-align:right; font-size:1.5rem; font-weight:900; color:var(--primary); margin-bottom:20px;" id="modalTotal">LKR 0</div>
+
+            <input type="text" id="cName" class="form-input" placeholder="Your Name *">
+            <input type="tel" id="cPhone" class="form-input" placeholder="Mobile Number (Required) *" inputmode="numeric">
+            
+            <div id="deliveryField">
+                <select id="cArea" class="form-input">
+                    <option value="" disabled selected>Select Delivery Area *</option>
+                    <option value="Wanawasala">Wanawasala</option>
+                    <option value="Kelaniya">Kelaniya</option>
+                    <option value="Wattala">Wattala</option>
+                    <option value="Peliyagoda">Peliyagoda</option>
+                    <option value="Kiribathgoda">Kiribathgoda</option>
+                    <option value="Other">Other</option>
+                </select>
+                <input type="text" id="cAddress" class="form-input" placeholder="House No / Street Address *">
+            </div>
+            
+            <div id="dineinField" class="hidden">
+                <h4 style="margin-bottom:10px; color:#555;">Select Your Table Number:</h4>
+                <div class="table-grid" id="tableGrid">
+                    </div>
+            </div>
+
+            <select id="pMethod" class="form-input" onchange="checkPayment()">
+                <option value="Cash">💵 Cash</option>
+                <option value="LankaQR">📱 LankaQR Scan</option>
+                <option value="Card">💳 Card</option>
+            </select>
+
+            <div id="qrBox" style="text-align: center; background: #fff; border: 2px dashed #ddd; padding: 20px; border-radius: 16px; margin-bottom: 20px; display: none;">
+                <p style="font-weight:bold;">Scan to Pay</p>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" style="width:120px; mix-blend-mode:multiply;" alt="LankaQR">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn-action btn-email" onclick="sendEmail()">📧 Email</button>
+                <button class="btn-action btn-wa" onclick="sendWA()">🟢 WhatsApp</button>
+            </div>
+            
+            <p style="text-align:center; margin-top:20px; font-size:0.8rem; color:#aaa;">Food Court - Wanawasala</p>
+        </div>
+    </div>
+
+    <script>
+        // --- UPDATED DATA WITH PERFECT IMAGES ---
+        const products = [
+            { id: 1, name: "Chicken Kottu", cat: "Kottu", price: 1200, img: "https://images.unsplash.com/photo-1626804475297-411d8c660180?w=600" }, // Good Kottu look
+            { id: 2, name: "Cheese Kottu", cat: "Kottu", price: 1500, img: "https://images.unsplash.com/photo-1542528180-a1208c5169a5?w=600" }, // Creamy pasta/kottu look
+            { id: 3, name: "Mixed Fried Rice", cat: "Rice", price: 1400, img: "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600" }, // Colorful Rice
+            { id: 4, name: "Nasi Goreng", cat: "Rice", price: 1600, img: "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600" }, // Rice with Egg
+            { id: 5, name: "Crispy Burger", cat: "Burgers", price: 950, img: "https://images.unsplash.com/photo-1619250907135-d2b378822509?w=600" }, // Crispy Chicken
+            { id: 6, name: "Double Beef", cat: "Burgers", price: 1300, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600" }, // Juicy Beef
+            { id: 7, name: "Iced Coffee", cat: "Drinks", price: 400, img: "https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=600" }, // Iced Coffee
+            { id: 8, name: "Lime Soda", cat: "Drinks", price: 300, img: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600" }  // Soda
+        ];
+
+        let cart = {};
+        let orderType = 'delivery';
+        let selectedTable = null;
+
+        // --- RENDER MENU ---
+        const menuEl = document.getElementById('menu');
+        function render(cat='All', term='') {
+            menuEl.innerHTML = '';
+            let delay = 0;
+            products.forEach(p => {
+                if((cat==='All' || p.cat===cat) && p.name.toLowerCase().includes(term.toLowerCase())){
+                    const el = document.createElement('div');
+                    el.className = 'item-card';
+                    el.style.animationDelay = `${delay}s`;
+                    el.innerHTML = `
+                        <div class="img-container">
+                            <span class="tag">${p.cat}</span>
+                            <img src="${p.img}" class="item-img" loading="lazy">
+                        </div>
+                        <div class="item-info">
+                            <div class="item-name">${p.name}</div>
+                            <div class="item-desc">Freshly prepared</div>
+                            <div class="price-row">
+                                <span class="price">LKR ${p.price}</span>
+                                <button class="add-btn" onclick="add(${p.id})">+</button>
+                            </div>
+                        </div>`;
+                    menuEl.appendChild(el);
+                    delay += 0.05;
+                }
+            });
+        }
+
+        // --- RENDER TABLE GRID ---
+        const tableGrid = document.getElementById('tableGrid');
+        for(let i=1; i<=12; i++) {
+            const btn = document.createElement('div');
+            btn.className = 'table-btn';
+            btn.innerText = i;
+            btn.onclick = () => setTable(i, btn);
+            tableGrid.appendChild(btn);
+        }
+
+        function setTable(num, btnElement) {
+            selectedTable = num;
+            // Remove active class from all
+            document.querySelectorAll('.table-btn').forEach(b => b.classList.remove('active-table'));
+            // Add to current
+            btnElement.classList.add('active-table');
+        }
+
+        function filter(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            render(cat);
+        }
+
+        function add(id) {
+            cart[id] = (cart[id] || 0) + 1;
+            const btn = event.target;
+            btn.style.transform = "scale(0.8)";
+            setTimeout(() => btn.style.transform = "scale(1)", 150);
+            updateUI();
+        }
+
+        function updateUI() {
+            let count = 0, total = 0;
+            let listHtml = '';
+            for(let id in cart) {
+                let p = products.find(i => i.id == id);
+                count += cart[id];
+                total += p.price * cart[id];
+                listHtml += `<div style="display:flex; justify-content:space-between; margin-bottom:5px; border-bottom:1px solid #eee; padding:5px 0;">
+                    <span>${cart[id]} x ${p.name}</span><strong>LKR ${p.price * cart[id]}</strong></div>`;
+            }
+            document.getElementById('cartCount').innerText = count;
+            document.getElementById('cartTotal').innerText = 'LKR ' + total;
+            document.getElementById('modalTotal').innerText = 'LKR ' + total;
+            document.getElementById('orderList').innerHTML = listHtml || '<p style="text-align:center;color:#999">Cart is empty</p>';
+            
+            const bar = document.getElementById('floatCart');
+            if(count>0) bar.classList.add('visible'); else bar.classList.remove('visible');
+        }
+
+        function openCheckout() { document.getElementById('checkoutModal').style.display = 'flex'; }
+        function closeCheckout() { document.getElementById('checkoutModal').style.display = 'none'; }
+        
+        function setType(type) {
+            orderType = type;
+            document.getElementById('btnDel').classList.toggle('selected', type==='delivery');
+            document.getElementById('btnDine').classList.toggle('selected', type==='dinein');
+            
+            if(type === 'delivery') {
+                document.getElementById('deliveryField').classList.remove('hidden');
+                document.getElementById('dineinField').classList.add('hidden');
+            } else {
+                document.getElementById('deliveryField').classList.add('hidden');
+                document.getElementById('dineinField').classList.remove('hidden');
+            }
+        }
+
+        function checkPayment() {
+            const method = document.getElementById('pMethod').value;
+            document.getElementById('qrBox').style.display = method === 'LankaQR' ? 'block' : 'none';
+        }
+
+        function validateOrder() {
+            let isValid = true;
+            document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+
+            const name = document.getElementById('cName');
+            const phone = document.getElementById('cPhone');
+            const area = document.getElementById('cArea');
+            const address = document.getElementById('cAddress');
+
+            // Name & Phone Check
+            if(!name.value.trim()) { name.classList.add('error'); isValid=false; }
+            if(!phone.value.trim() || phone.value.length < 9) { phone.classList.add('error'); isValid=false; }
+
+            // Logic Check
+            if(orderType === 'delivery') {
+                if(!area.value) { area.classList.add('error'); isValid=false; }
+                if(!address.value.trim()) { address.classList.add('error'); isValid=false; }
+            } else {
+                if(!selectedTable) { 
+                    alert("Please click a Table Number"); 
+                    isValid=false; 
+                }
+            }
+
+            if(!isValid && orderType==='delivery') alert("Please fill in the red fields.");
+            return isValid;
+        }
+
+        function generateMsg() {
+            if(!validateOrder()) return null;
+
+            let msg = `*ORDER - FOOD COURT (Wanawasala)*\n-------------------------\n`;
+            msg += orderType === 'delivery' ? `Type: 🚚 DELIVERY\n` : `Type: 🍽️ DINE-IN (IN SHOP)\n`;
+
+            let total = 0;
+            for(let id in cart) {
+                let p = products.find(i => i.id == id);
+                msg += `${cart[id]} x ${p.name}\n`;
+                total += p.price * cart[id];
+            }
+            msg += `-------------------------\n*TOTAL: LKR ${total}*\n`;
+            
+            msg += `Name: ${document.getElementById('cName').value}\n`;
+            msg += `Phone: ${document.getElementById('cPhone').value}\n`;
+            
+            if(orderType === 'delivery') {
+                msg += `Area: ${document.getElementById('cArea').value}\n`;
+                msg += `Address: ${document.getElementById('cAddress').value}\n`;
+            } else {
+                msg += `Table No: ${selectedTable}\n`;
+            }
+            
+            msg += `Payment: ${document.getElementById('pMethod').value}`;
+            return msg;
+        }
+
+        function sendWA() {
+            const msg = generateMsg();
+            if(msg) {
+                const num = "94763633678"; 
+                window.location.href = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+            }
+        }
+
+        function sendEmail() {
+            const msg = generateMsg();
+            if(msg) {
+                const subject = "New Order - Food Court Wanawasala";
+                window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`;
+            }
+        }
+
+        document.getElementById('search').addEventListener('input', e => render('All', e.target.value));
+        render();
+
+        window.onclick = function(e) {
+            if(e.target == document.getElementById('checkoutModal')) closeCheckout();
+        }
+    </script>
+</body>
+</html>
